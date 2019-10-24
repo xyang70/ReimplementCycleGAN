@@ -42,7 +42,7 @@ class Discriminator(nn.Module):
         # Output 1-D score by using the kernal size same as the final image 
         return F.avg_pool2d(x, x.size()[2:]).view(x.size()[0], -1)
     
-    def set_requires_grad(self, requires_grad=False):
+    def set_grad(self, requires_grad=False):
         """
         Set requies_grad=Fasle for all the networks to avoid unnecessary computations
         Parameters:
