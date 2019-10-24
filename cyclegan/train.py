@@ -28,7 +28,7 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-    #model = CycleGAN(opt)
+    model = CycleGAN(opt)
     transforms_ = [transforms.RandomHorizontalFlip(),
                    transforms.ToTensor()]
 
@@ -37,7 +37,6 @@ if __name__ == '__main__':
                         batch_size=opt.batchSize, shuffle=True)
 
 
-    """
     # within each epoch
 
         # time each iter
@@ -49,7 +48,6 @@ if __name__ == '__main__':
         # save training stats to file
 
         # plot graph if possible
-    """
 
 
 
