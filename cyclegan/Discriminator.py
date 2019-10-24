@@ -21,12 +21,12 @@ class Discriminator(nn.Module):
             self.output_nc *= mul_nc
             model += [nn.Conv2d(input_nc, self.output_nc, 4, stride=2, padding=1),
                       nn.InstanceNorm2d(self.output_nc),
-                      nn.LeakyReLU(0.2, inplace=True) 
+                      nn.LeakyReLU(0.2, inplace=True) ]
         # FCN classification layer
         # Reduce to only 1 channel
-        model += [nn.Conv2d(self.output_nc, 1, 4, padding=1),     #output_nc = 512
+        model += [nn.Conv2d(self.output_nc, 1, 4, padding=1),
                   nn.InstanceNorm2d(1),
-                  nn.LeakyReLU(0.2, inplace=True)]
+                  nn.LeakyReLU(0.2, inplace=True)] #output_nc = 512
 
         self.model = nn.Sequential(*model)
 

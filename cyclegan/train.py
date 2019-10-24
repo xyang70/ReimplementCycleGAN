@@ -8,6 +8,8 @@ import datetime
 import PIL
 import os
 import argparse
+from torch.utils.data import DataLoader
+from ImageDataset import ImageDataset
 
 from CycleGAN import CycleGAN
 
@@ -19,16 +21,23 @@ if __name__ == '__main__':
     parser.add_argument('--batchSize', type=int, default=1, help='batch size')
     parser.add_argument('--epochs', type=int, default=200, help='number of epochs')
     parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
-    parser.add_argument('--lambd', type=float, default=10, help='weighr for cycle consistency loss')
+    parser.add_argument('--lambda', type=float, default=10, help='weighr for cycle consistency loss')
 
     opt = parser.parse_args()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-    model = CycleGAN()
+    #model = CycleGAN(opt)
+    transforms_ = [transforms.RandomHorizontalFlip(),
+                   transforms.ToTensor()]
+
+    
+    dataloader = DataLoader(ImageDataset('../datasets/monet2photo/', transforms_=transforms_), 
+                        batch_size=opt.batchSize, shuffle=True)
 
 
+    """
     # within each epoch
 
         # time each iter
@@ -40,7 +49,7 @@ if __name__ == '__main__':
         # save training stats to file
 
         # plot graph if possible
-
+    """
 
 
 
