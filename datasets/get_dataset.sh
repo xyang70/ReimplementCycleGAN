@@ -3,11 +3,11 @@ FILE='monet2photo'
 
 echo "Specified [$FILE]"
 URL=https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/datasets/$FILE.zip
-ZIP_FILE=./datasets/$FILE.zip
-TARGET_DIR=./datasets/$FILE/
+ZIP_FILE=./$FILE.zip
+TARGET_DIR=./$FILE/
 wget -N $URL -O $ZIP_FILE
 mkdir $TARGET_DIR
-unzip $ZIP_FILE -d ./datasets/
+unzip $ZIP_FILE -d ./
 rm $ZIP_FILE
 
 
