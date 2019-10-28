@@ -15,6 +15,11 @@ class ReplayBuffer(object):
         self.size = 0
 
     def add_and_sample(self, img, batch_size):
+        if random.random() > 0.5 or self.size < 1:
+            ret = img
+        else:
+            ret = random.sample(self.buffer, batch_size)
+
         if size < capacity:
             self.buffer.append(img)
         else:
@@ -22,10 +27,7 @@ class ReplayBuffer(object):
         self.position = (self.position + 1) % self.capacity
         self.size += 1
 
-        if random.random() > 0.5:
-            return img
-        else:
-            return random.sample(self.buffer, batch_size)
+        return ret
 
 class CycleGAN(nn.Module):
     def __init__(self, opt, is_train=True):
@@ -58,11 +60,20 @@ class CycleGAN(nn.Module):
         self.fake_A = self.genB2A(self.real_B)
         self.cyclic_A = self.genA2B(self.fake_A)
 
+    def backward_D(self, D, real, fake):
+        D_real = D(real)
+        loss_D_real = self.criterionGAN(D_real, True)
+
+        D_fake = D(fake.detach())
+        loss_D_fake = self.criterionGAN(D_fake, False)
+
+        loss_D = loss_D_real + loss_D_fake
+        loss_D.backward()
 
     def optimize_parameters(self):
         self.forward()
 
-        # optimize Generator 
+        # optimize Generator: calc loss of G -> backward -> update weights
         self.disA.set_grad(False)
         self.disB.set_grad(False)
 
@@ -72,19 +83,20 @@ class CycleGAN(nn.Module):
         self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A), True)
         self.loss_cyclic_B = self.criterionCycle(self.cyclic_B, self.real_B)
         self.loss_G = loss_genA2B + loss_genB2A + opt.lambd * (loss_cyclic_A + loss_cyclic_B)
+
         self.loss_G.backward()
 
         self.optimizer_G.step()
         
-        # optimize Discriminator
+        # optimize Discriminator: calc loss of D -> backward -> update weights
         self.disA.set_grad(True)
         self.disB.set_grad(True)
 
         self.optimizer_D.zero_grad()
 
         fake_A = self.fake_As.add_and_sample(self.fake_A)
-
-
-
+        self.backward_D(self.disA, self.real_A, fake_A)
+        fake_B = self.fake_Bs.add_and_sample(self.fake_B)
+        self.backward_D(self.disB, self.real_B, fake_B)
 
         self.optimizer_D.step()
