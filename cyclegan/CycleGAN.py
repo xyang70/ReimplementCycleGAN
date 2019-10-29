@@ -3,7 +3,6 @@ import torchvision
 import torch.nn as nn
 import torch.optim as optim
 import random 
-import itertools
 
 from Generator import Generator
 from Discriminator import Discriminator
@@ -44,8 +43,8 @@ class CycleGAN(nn.Module):
         self.criterionCycle = nn.L1Loss()
 
         self.lr_scheduler = None
-        self.optimizer_G = optim.Adam(itertools.chain(self.genA2B.parameters(), self.genB2A.parameters()), lr=opt.lr)
-        self.optimizer_D = optim.Adam(itertools.chain(self.disA.parameters(), self.disB.parameters()), lr=opt.lr)
+        self.optimizer_G = optim.Adam(itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()), lr=opt.lr)
+        self.optimizer_D = optim.Adam(itertools.chain(self.netD_A.parameters(), self.netD_B.parameters()), lr=opt.lr)
         self.optimizers = [self.optimizer_G, self.optimizer_D]
 
         self.fake_As = ReplayBuffer()
@@ -70,6 +69,7 @@ class CycleGAN(nn.Module):
 
         loss_D = loss_D_real + loss_D_fake
         loss_D.backward()
+        return loss_D
 
     def optimize_parameters(self):
         self.forward()
@@ -94,42 +94,11 @@ class CycleGAN(nn.Module):
         self.disB.set_grad(True)
 
         self.optimizer_D.zero_grad()
-        
-        #Discriminator A
-        # A Real loss
-        self.pred_real = self.disA(self.real_A)
-        self.loss_D_real = self.criterion_GAN(self.pred_real, True)
 
-        # A Fake loss
-        self.fake_A = self.fake_As.add_and_sample(self.fake_A)
-        self.pred_fake = self.disA(self.fake_A.detach())
-        self.loss_D_fake = self.criterion_GAN(self.pred_fake, 0)
+        fake_A = self.fake_As.add_and_sample(self.fake_A)
+        loss_D_A = self.backward_D(self.disA, self.real_A, fake_A)
+        fake_B = self.fake_Bs.add_and_sample(self.fake_B)
+        loss_D_B = self.backward_D(self.disB, self.real_B, fake_B)
 
-        # A loss
-        self.loss_D_A = (self.loss_D_real + self.loss_D_fake)*0.5
-       
-        # Discriminator B
-        # B Real loss
-        self.pred_real = self.disB(self.real_B)
-        self.loss_D_real = self.criterion_GAN(self.pred_real, True)
-
-        # B Fake loss
-        self.fake_B = self.fake_Bs.add_and_sample(self.fake_B)
-        self.pred_fake = self.disB(self.fake_B.detach())
-        self.loss_D_fake = self.criterion_GAN(self.pred_fake, False)
-
-        # B loss
-        self.loss_D_B = (self.loss_D_real + self.loss_D_fake)*0.5
-        ###################################
-
-        #Total loss
-        self.loss_G = self.loss_D_A + self.loss_D_B
-        self.loss_G.backward()
-        optimizer_D.step()
-
-        #fake_A = self.fake_As.add_and_sample(self.fake_A)
-        #self.backward_D(self.disA, self.real_A, fake_A)
-        #fake_B = self.fake_Bs.add_and_sample(self.fake_B)
-        #self.backward_D(self.disB, self.real_B, fake_B)
-
-        #self.optimizer_D.step()
+        self.optimizer_D.step()
+        return loss_D_A, loss_D_B, loss_G
