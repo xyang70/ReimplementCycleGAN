@@ -93,10 +93,42 @@ class CycleGAN(nn.Module):
         self.disB.set_grad(True)
 
         self.optimizer_D.zero_grad()
+        
+        #Discriminator A
+        # A Real loss
+        self.pred_real = self.disA(self.real_A)
+        self.loss_D_real = self.criterion_GAN(self.pred_real, True)
 
-        fake_A = self.fake_As.add_and_sample(self.fake_A)
-        self.backward_D(self.disA, self.real_A, fake_A)
-        fake_B = self.fake_Bs.add_and_sample(self.fake_B)
-        self.backward_D(self.disB, self.real_B, fake_B)
+        # A Fake loss
+        self.fake_A = self.fake_As.add_and_sample(self.fake_A)
+        self.pred_fake = self.disA(self.fake_A.detach())
+        self.loss_D_fake = self.criterion_GAN(self.pred_fake, 0)
 
-        self.optimizer_D.step()
+        # A loss
+        self.loss_D_A = (self.loss_D_real + self.loss_D_fake)*0.5
+       
+        # Discriminator B
+        # B Real loss
+        self.pred_real = self.disB(self.real_B)
+        self.loss_D_real = self.criterion_GAN(self.pred_real, True)
+
+        # B Fake loss
+        self.fake_B = self.fake_Bs.add_and_sample(self.fake_B)
+        self.pred_fake = self.disB(self.fake_B.detach())
+        self.loss_D_fake = self.criterion_GAN(self.pred_fake, False)
+
+        # B loss
+        self.loss_D_B = (self.loss_D_real + self.loss_D_fake)*0.5
+        ###################################
+
+        #Total loss
+        self.loss_G = self.loss_D_A + self.loss_D_B
+        self.loss_G.backward()
+        optimizer_D.step()
+
+        #fake_A = self.fake_As.add_and_sample(self.fake_A)
+        #self.backward_D(self.disA, self.real_A, fake_A)
+        #fake_B = self.fake_Bs.add_and_sample(self.fake_B)
+        #self.backward_D(self.disB, self.real_B, fake_B)
+
+        #self.optimizer_D.step()
