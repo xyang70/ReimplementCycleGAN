@@ -3,7 +3,7 @@ import torchvision
 import torch.nn as nn
 import torch.optim as optim
 import random 
-
+import itertools
 from Generator import Generator
 from Discriminator import Discriminator
 
