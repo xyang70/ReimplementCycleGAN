@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Discriminator(nn.Module):
-    def __init__(self, input_nc, output_nc = 64, layer_n = 3, mul_nc = 2):
+    def __init__(self, input_nc = 3, output_nc = 64, layer_n = 3, mul_nc = 2):
         super(Discriminator, self).__init__()
         """
         input_nc: int, number of channel for input of the first layer
