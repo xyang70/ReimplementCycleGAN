@@ -17,7 +17,7 @@ class ResnetBlock(nn.Module):
         
     def forward(self, x):
         fx = self.block(x)
-        fx = nn.relu(fx)
+        fx = nn.ReLU(fx)
         fx = self.block(fx)
         return x+fx
 
@@ -37,6 +37,7 @@ class Generator(nn.Module):
             nn.ReLU(inplace=True)
         )
         self.n_blocks = n_blocks
+        self.resblock = ResnetBlock()
         self.decoder = nn.Sequential(
             nn.ConvTranspose2d(BASE_GEN_FEATURE*4, BASE_GEN_FEATURE*2, kernel_size=3, stride=2),
             nn.InstanceNorm2d(BASE_GEN_FEATURE*2*BATCH_SIZE),
@@ -55,6 +56,6 @@ class Generator(nn.Module):
     def forward(self, x): #256x256x3
         x = self.encoder(x)
         for i in range(self.n_blocks):
-            x = ResnetBlock(x) 
+            x = self.resblock(x)
         x = self.decoder(x) 
         return x
