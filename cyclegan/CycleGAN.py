@@ -54,7 +54,7 @@ class CycleGAN(nn.Module):
         self.real_A = A
         self.real_B = B
 
-    def forward(self, x): 
+    def forward(self): 
         self.fake_B = self.genA2B(self.real_A)
         self.cyclic_A = self.genB2A(self.fake_B)
         self.fake_A = self.genB2A(self.real_B)
