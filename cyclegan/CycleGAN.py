@@ -43,8 +43,8 @@ class CycleGAN(nn.Module):
         self.criterionCycle = nn.L1Loss()
 
         self.lr_scheduler = None
-        self.optimizer_G = optim.Adam(itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()), lr=opt.lr)
-        self.optimizer_D = optim.Adam(itertools.chain(self.netD_A.parameters(), self.netD_B.parameters()), lr=opt.lr)
+        self.optimizer_G = optim.Adam(itertools.chain(self.genA2B.parameters(), self.genB2A.parameters()), lr=opt.lr)
+        self.optimizer_D = optim.Adam(itertools.chain(self.disA.parameters(), self.disB.parameters()), lr=opt.lr)
         self.optimizers = [self.optimizer_G, self.optimizer_D]
 
         self.fake_As = ReplayBuffer()
