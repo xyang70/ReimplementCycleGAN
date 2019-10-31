@@ -101,4 +101,4 @@ class CycleGAN(nn.Module):
         loss_D_B = self.backward_D(self.disB, self.real_B, fake_B)
 
         self.optimizer_D.step()
-        return loss_D_A, loss_D_B, loss_G
+        return loss_D_A, loss_D_B, loss_G, self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
