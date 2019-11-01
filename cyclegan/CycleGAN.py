@@ -7,6 +7,9 @@ import itertools
 from Generator import Generator
 from Discriminator import Discriminator
 
+# Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
+Tensor = torch.Tensor
+
 class ReplayBuffer(object):
     def __init__(self, capacity=50):
         self.capacity = capacity
@@ -19,8 +22,9 @@ class ReplayBuffer(object):
             ret = img
         else:
             ret = random.sample(self.buffer, batch_size)
+            ret = torch.cat(ret, 0)
 
-        if size < capacity:
+        if self.size < self.capacity:
             self.buffer.append(img)
         else:
             self.buffer[self.position] = img
@@ -58,14 +62,14 @@ class CycleGAN(nn.Module):
         self.fake_B = self.genA2B(self.real_A)
         self.cyclic_A = self.genB2A(self.fake_B)
         self.fake_A = self.genB2A(self.real_B)
-        self.cyclic_A = self.genA2B(self.fake_A)
+        self.cyclic_B = self.genA2B(self.fake_A)
 
     def backward_D(self, D, real, fake):
-        D_real = D(real)
-        loss_D_real = self.criterionGAN(D_real, True)
+        D_real = D(real)[0]
+        loss_D_real = self.criterionGAN(D_real, Tensor(1).fill_(1.0))
 
-        D_fake = D(fake.detach())
-        loss_D_fake = self.criterionGAN(D_fake, False)
+        D_fake = D(fake.detach())[0]
+        loss_D_fake = self.criterionGAN(D_fake, Tensor(1).fill_(0.0))
 
         loss_D = loss_D_real + loss_D_fake
         loss_D.backward()
@@ -79,11 +83,12 @@ class CycleGAN(nn.Module):
         self.disB.set_grad(False)
 
         self.optimizer_G.zero_grad()
-        self.loss_genA2B = self.criterionGAN(self.disA(self.fake_B), True)
+        temp = self.disA(self.fake_B)
+        self.loss_genA2B = self.criterionGAN(self.disA(self.fake_B)[0], Tensor(1).fill_(1.0))
         self.loss_cyclic_A = self.criterionCycle(self.cyclic_A, self.real_A)
-        self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A), True)
+        self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A)[0], Tensor(1).fill_(0.0))
         self.loss_cyclic_B = self.criterionCycle(self.cyclic_B, self.real_B)
-        self.loss_G = loss_genA2B + loss_genB2A + opt.lambd * (loss_cyclic_A + loss_cyclic_B)
+        self.loss_G = self.loss_genA2B + self.loss_genB2A + 10 * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
 
         self.loss_G.backward()
 
@@ -95,10 +100,10 @@ class CycleGAN(nn.Module):
 
         self.optimizer_D.zero_grad()
 
-        fake_A = self.fake_As.add_and_sample(self.fake_A)
-        loss_D_A = self.backward_D(self.disA, self.real_A, fake_A)
-        fake_B = self.fake_Bs.add_and_sample(self.fake_B)
-        loss_D_B = self.backward_D(self.disB, self.real_B, fake_B)
+        fake_A = self.fake_As.add_and_sample(self.fake_A, 1) #opt.batchsize
+        self.loss_D_A = self.backward_D(self.disA, self.real_A, fake_A)
+        fake_B = self.fake_Bs.add_and_sample(self.fake_B, 1) #opt.batchsize
+        self.loss_D_B = self.backward_D(self.disB, self.real_B, fake_B)
 
         self.optimizer_D.step()
-        return loss_D_A, loss_D_B, loss_G, self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
+        return self.loss_D_A, self.loss_D_B, self.loss_G, self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B

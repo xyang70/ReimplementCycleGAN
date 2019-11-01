@@ -11,13 +11,16 @@ class ResnetBlock(nn.Module):
         super(ResnetBlock, self).__init__()
         self.block = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(BASE_GEN_FEATURE*4, BASE_GEN_FEATURE*4, kernel_size=3, stride=1),
+            nn.Conv2d(BASE_GEN_FEATURE*4, BASE_GEN_FEATURE*4, kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(BASE_GEN_FEATURE*4)
+        )
+        self.relu = nn.Sequential(
+            nn.ReLU()
         )
         
     def forward(self, x):
         fx = self.block(x)
-        fx = nn.ReLU(fx)
+        fx = self.relu(fx)
         fx = self.block(fx)
         return x+fx
 
@@ -39,10 +42,10 @@ class Generator(nn.Module):
         self.n_blocks = n_blocks
         self.resblock = ResnetBlock()
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(BASE_GEN_FEATURE*4, BASE_GEN_FEATURE*2, kernel_size=3, stride=2),
+            nn.ConvTranspose2d(BASE_GEN_FEATURE*4, BASE_GEN_FEATURE*2, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.InstanceNorm2d(BASE_GEN_FEATURE*2*BATCH_SIZE),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(BASE_GEN_FEATURE*2, BASE_GEN_FEATURE, kernel_size=3, stride=2),
+            nn.ConvTranspose2d(BASE_GEN_FEATURE*2, BASE_GEN_FEATURE, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.InstanceNorm2d(BASE_GEN_FEATURE*BATCH_SIZE),
             nn.ReLU(inplace=True),
             nn.ReflectionPad2d(3),
@@ -59,3 +62,6 @@ class Generator(nn.Module):
             x = self.resblock(x)
         x = self.decoder(x) 
         return x
+
+
+
