@@ -2,13 +2,14 @@ import torch
 import torchvision
 import torch.nn as nn
 import torch.optim as optim
-import random 
+import random
 import itertools
 from Generator import Generator
 from Discriminator import Discriminator
 
-# Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
-Tensor = torch.Tensor
+Tensor = torch.cuda.FloatTensor
+#if opt.cuda else torch.Tensor
+#Tensor = torch.Tensor
 
 class ReplayBuffer(object):
     def __init__(self, capacity=50):
@@ -38,10 +39,10 @@ class CycleGAN(nn.Module):
         super(CycleGAN, self).__init__()
         self.is_train = is_train
 
-        self.genA2B = Generator()
-        self.genB2A = Generator()
-        self.disA = Discriminator()
-        self.disB = Discriminator()
+        self.genA2B = Generator().cuda()
+        self.genB2A = Generator().cuda()
+        self.disA = Discriminator().cuda()
+        self.disB = Discriminator().cuda()
 
         self.criterionGAN = nn.MSELoss()
         self.criterionCycle = nn.L1Loss()
@@ -58,7 +59,7 @@ class CycleGAN(nn.Module):
         self.real_A = A
         self.real_B = B
 
-    def forward(self): 
+    def forward(self):
         self.fake_B = self.genA2B(self.real_A)
         self.cyclic_A = self.genB2A(self.fake_B)
         self.fake_A = self.genB2A(self.real_B)
@@ -93,7 +94,7 @@ class CycleGAN(nn.Module):
         self.loss_G.backward()
 
         self.optimizer_G.step()
-        
+
         # optimize Discriminator: calc loss of D -> backward -> update weights
         self.disA.set_grad(True)
         self.disB.set_grad(True)
