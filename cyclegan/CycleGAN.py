@@ -64,7 +64,7 @@ class CycleGAN(nn.Module):
         self.cyclic_A = self.genB2A(self.fake_B)
         self.fake_A = self.genB2A(self.real_B)
         self.cyclic_B = self.genA2B(self.fake_A)
-
+        return self.loss_D_A, self.loss_D_B, self.loss_G, self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
     def backward_D(self, D, real, fake):
         D_real = D(real)[0]
         loss_D_real = self.criterionGAN(D_real, Tensor(1).fill_(1.0))
