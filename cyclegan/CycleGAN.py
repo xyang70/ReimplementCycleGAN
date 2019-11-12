@@ -79,6 +79,7 @@ class CycleGAN(nn.Module):
     def optimize_parameters(self):
         self.forward()
 
+
         # optimize Generator: calc loss of G -> backward -> update weights
         self.disA.set_grad(False)
         self.disB.set_grad(False)
@@ -89,10 +90,15 @@ class CycleGAN(nn.Module):
         self.loss_cyclic_A = self.criterionCycle(self.cyclic_A, self.real_A)
         self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A)[0], Tensor(1).fill_(1.0))
         self.loss_cyclic_B = self.criterionCycle(self.cyclic_B, self.real_B)
-        self.loss_G = self.loss_genA2B + self.loss_genB2A + 10 * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
+        self.loss_G = self.loss_genA2B + self.loss_genB2A + opt.lambd * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
 
         self.loss_G.backward()
-
+        for group in self.optimizer_G.param_groups:
+            for p in group['params']:
+                state = self.optimizer_G.state[p]
+                if 'step' in state.keys():
+                    if(state['step']>=1024):
+                        state['step'] = 1000
         self.optimizer_G.step()
 
         # optimize Discriminator: calc loss of D -> backward -> update weights
@@ -101,15 +107,20 @@ class CycleGAN(nn.Module):
 
         self.optimizer_D.zero_grad()
 
-        fake_A = self.fake_As.add_and_sample(self.fake_A, 1) #opt.batchsize
+        fake_A = self.fake_As.add_and_sample(self.fake_A, opt.batchSize) #opt.batchsize
         self.loss_D_A = self.backward_D(self.disA, self.real_A, fake_A)
-        fake_B = self.fake_Bs.add_and_sample(self.fake_B, 1) #opt.batchsize
+        fake_B = self.fake_Bs.add_and_sample(self.fake_B, opt.batchSize) #opt.batchsize
         self.loss_D_B = self.backward_D(self.disB, self.real_B, fake_B)
-
+        for group in self.optimizer_D.param_groups:
+            for p in group['params']:
+                state = self.optimizer_D.state[p]
+                if 'step' in state.keys():
+                    if(state['step']>=1024):
+                        state['step'] = 1000
         self.optimizer_D.step()
         return self.loss_D_A, self.loss_D_B, self.loss_G, self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
 
     def test(self):
         self.fake_B = self.genA2B(self.real_A)
-        self.fake_A = self.loss_genB2A(self.real_B)
+        self.fake_A = self.genB2A(self.real_B)
         return self.disA(self.fake_A)[0],self.disB(self.fake_B)[0]

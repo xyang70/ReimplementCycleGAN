@@ -35,11 +35,10 @@ parser.add_argument('--lr', type=float, default=0.0002, help='initial learning r
 parser.add_argument('--size', type=int, default=256, help='size of the data crop (squared assumed)')
 parser.add_argument('--input_nc', type=int, default=3, help='number of channels of input data')
 parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
-parser.add_argument('--cuda', action='store_true', help='use GPU computation')
 parser.add_argument('--n_cpu', type=int, default=8, help='number of cpu threads to use during batch generation')
 parser.add_argument('--batchSize', type=int, default=1, help='batch size')
-parser.add_argument('--epochs', type=int, default=200, help='number of epochs')
-parser.add_argument('--lambda', type=float, default=10, help='weighr for cycle consistency loss')
+parser.add_argument('--epochs', type=int, default=75, help='number of epochs')
+parser.add_argument('--lambd', type=float, default=10, help='weighr for cycle consistency loss')
 
 
 # In[3]:
@@ -180,12 +179,13 @@ for epoch in range(1,num_epochs+1):
         loss_A+=lossD_A
         loss_B+=lossD_B
         loss_model_G+=loss_G
-#         save_image(A,batch_idx,'input_A',directory)
-#         save_image(B,batch_idx,'input_B',directory)
-        # save_image(cyclic_A,batch_idx,'cyclic_A',directory)
-#         save_image(fake_B,batch_idx,'fake_B',directory)
-#         save_image(fake_A,batch_idx,'fake_A',directory)
-#         save_image(cyclic_B,batch_idx,'cyclic_B',directory)
+        if batch_idx%500 == 0:
+            save_image(A,batch_idx,str(epoch)+'input_A',directory)
+            save_image(B,batch_idx,str(epoch)+'input_B',directory)
+            save_image(cyclic_A,batch_idx,str(epoch)+'cyclic_A',directory)
+            save_image(fake_B,batch_idx,str(epoch)+'fake_B',directory)
+            save_image(fake_A,batch_idx,str(epoch)+'fake_A',directory)
+            save_image(cyclic_B,batch_idx,str(epoch)+'cyclic_B',directory)
 #         break
     loss_A/=len(trainset)
     loss_B/=len(trainset)
@@ -219,24 +219,21 @@ model.eval()
 loss_A = 0
 loss_B = 0
 loss_model_G = 0
-with torch.no_grad():
-    for batch_idx, data in enumerate(test_loader):
-        A = data['A'].to(device)
-        B = data['B'].to(device)
-        model.load(A,B)
-        ## fix these
-        fake_A,fake_B = model.test()
-
-        # lossD_A,lossD_B,loss_G,fake_B,cyclic_A,fake_A,cyclic_B = model.forward()
-        # loss_B+=lossD_B
-        # loss_model_G+=loss_G
-        save_image(A,batch_idx,'input_A',directory)
-        save_image(B,batch_idx,'input_B',directory)
-        #save_image(cyclic_A,batch_idx,'fake_A',directory)
-        # save_image(cyclic_A,batch_idx,'cyclic_A',directory)
-        save_image(fake_B,batch_idx,'fake_B',directory)
-        save_image(fake_A,batch_idx,'fake_A',directory)
-        # save_image(cyclic_B,batch_idx,'cyclic_B',directory)
+for batch_idx, data in enumerate(test_loader):
+    A = data['A'].to(device)
+    B = data['B'].to(device)
+    model.load(A,B)
+    ## fix these
+    fake_B,cyclic_A,fake_A,cyclic_B = model.forward()
+    #dis_A_fake_A,dis_B_fake_B = model.test()
+    # loss_B+=lossD_B
+    # loss_model_G+=loss_G
+    save_image(A,batch_idx,'input_A',directory)
+    save_image(B,batch_idx,'input_B',directory)
+    save_image(cyclic_A,batch_idx,'fake_A',directory)
+    save_image(cyclic_A,batch_idx,'cyclic_A',directory)
+    save_image(fake_B,batch_idx,'fake_B',directory)
+    save_image(cyclic_B,batch_idx,'cyclic_B',directory)
 loss_A/=len(testset)
 loss_B/=len(testset)
 loss_model_G/=len(testset)
