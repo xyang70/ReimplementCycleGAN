@@ -38,7 +38,7 @@ class CycleGAN(nn.Module):
     def __init__(self, opt, is_train=True):
         super(CycleGAN, self).__init__()
         self.is_train = is_train
-
+        self.opt = opt
         self.genA2B = Generator().cuda()
         self.genB2A = Generator().cuda()
         self.disA = Discriminator().cuda()
@@ -48,8 +48,8 @@ class CycleGAN(nn.Module):
         self.criterionCycle = nn.L1Loss()
 
         self.lr_scheduler = None
-        self.optimizer_G = optim.Adam(itertools.chain(self.genA2B.parameters(), self.genB2A.parameters()), lr=opt.lr)
-        self.optimizer_D = optim.Adam(itertools.chain(self.disA.parameters(), self.disB.parameters()), lr=opt.lr)
+        self.optimizer_G = optim.Adam(itertools.chain(self.genA2B.parameters(), self.genB2A.parameters()), lr=self.opt.lr)
+        self.optimizer_D = optim.Adam(itertools.chain(self.disA.parameters(), self.disB.parameters()), lr=self.opt.lr)
         self.optimizers = [self.optimizer_G, self.optimizer_D]
 
         self.fake_As = ReplayBuffer()
@@ -90,7 +90,7 @@ class CycleGAN(nn.Module):
         self.loss_cyclic_A = self.criterionCycle(self.cyclic_A, self.real_A)
         self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A)[0], Tensor(1).fill_(1.0))
         self.loss_cyclic_B = self.criterionCycle(self.cyclic_B, self.real_B)
-        self.loss_G = self.loss_genA2B + self.loss_genB2A + opt.lambd * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
+        self.loss_G = self.loss_genA2B + self.loss_genB2A + self.opt.lambd * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
 
         self.loss_G.backward()
         for group in self.optimizer_G.param_groups:
@@ -107,9 +107,9 @@ class CycleGAN(nn.Module):
 
         self.optimizer_D.zero_grad()
 
-        fake_A = self.fake_As.add_and_sample(self.fake_A, opt.batchSize) #opt.batchsize
+        fake_A = self.fake_As.add_and_sample(self.fake_A, self.opt.batchSize) #opt.batchsize
         self.loss_D_A = self.backward_D(self.disA, self.real_A, fake_A)
-        fake_B = self.fake_Bs.add_and_sample(self.fake_B, opt.batchSize) #opt.batchsize
+        fake_B = self.fake_Bs.add_and_sample(self.fake_B, self.opt.batchSize) #opt.batchsize
         self.loss_D_B = self.backward_D(self.disB, self.real_B, fake_B)
         for group in self.optimizer_D.param_groups:
             for p in group['params']:
