@@ -246,7 +246,11 @@ print('lossD_A :{},lossD_B:{},loss_G:{}'.format(loss_A,loss_B,loss_model_G))
 # In[ ]:
 
 
+<<<<<<< HEAD
 # plot_graph(num_epochs,acc_list,loss_list)
+=======
+#plot_graph(num_epochs,acc_list,loss_list)
+>>>>>>> a3cc2bf17853199043d02b34f61251ecf371a59b
 
 
 # In[ ]:
