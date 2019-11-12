@@ -234,8 +234,8 @@ with torch.no_grad():
         save_image(B,batch_idx,'input_B',directory)
         #save_image(cyclic_A,batch_idx,'fake_A',directory)
         # save_image(cyclic_A,batch_idx,'cyclic_A',directory)
-        # save_image(fake_B,batch_idx,'fake_B',directory)
-        # save_image(fake_A,batch_idx,'fake_A',directory)
+        save_image(fake_B,batch_idx,'fake_B',directory)
+        save_image(fake_A,batch_idx,'fake_A',directory)
         # save_image(cyclic_B,batch_idx,'cyclic_B',directory)
 loss_A/=len(testset)
 loss_B/=len(testset)
@@ -246,11 +246,9 @@ print('lossD_A :{},lossD_B:{},loss_G:{}'.format(loss_A,loss_B,loss_model_G))
 # In[ ]:
 
 
-<<<<<<< HEAD
 # plot_graph(num_epochs,acc_list,loss_list)
-=======
 #plot_graph(num_epochs,acc_list,loss_list)
->>>>>>> a3cc2bf17853199043d02b34f61251ecf371a59b
+
 
 
 # In[ ]:
