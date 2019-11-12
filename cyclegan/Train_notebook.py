@@ -225,15 +225,18 @@ with torch.no_grad():
         B = data['B'].to(device)
         model.load(A,B)
         ## fix these
-        lossD_A,lossD_B,loss_G,fake_B,cyclic_A,fake_A,cyclic_B = model.forward()
-        loss_B+=lossD_B
-        loss_model_G+=loss_G
+        fake_A,fake_B = model.test()
+
+        # lossD_A,lossD_B,loss_G,fake_B,cyclic_A,fake_A,cyclic_B = model.forward()
+        # loss_B+=lossD_B
+        # loss_model_G+=loss_G
         save_image(A,batch_idx,'input_A',directory)
         save_image(B,batch_idx,'input_B',directory)
-        save_image(cyclic_A,batch_idx,'cyclic_A',directory)
-        save_image(fake_B,batch_idx,'fake_B',directory)
-        save_image(fake_A,batch_idx,'fake_A',directory)
-        save_image(cyclic_B,batch_idx,'cyclic_B',directory)
+        #save_image(cyclic_A,batch_idx,'fake_A',directory)
+        # save_image(cyclic_A,batch_idx,'cyclic_A',directory)
+        # save_image(fake_B,batch_idx,'fake_B',directory)
+        # save_image(fake_A,batch_idx,'fake_A',directory)
+        # save_image(cyclic_B,batch_idx,'cyclic_B',directory)
 loss_A/=len(testset)
 loss_B/=len(testset)
 loss_model_G/=len(testset)
@@ -243,7 +246,7 @@ print('lossD_A :{},lossD_B:{},loss_G:{}'.format(loss_A,loss_B,loss_model_G))
 # In[ ]:
 
 
-plot_graph(num_epochs,acc_list,loss_list)
+# plot_graph(num_epochs,acc_list,loss_list)
 
 
 # In[ ]:

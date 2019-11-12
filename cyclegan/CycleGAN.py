@@ -87,7 +87,7 @@ class CycleGAN(nn.Module):
         temp = self.disA(self.fake_B)
         self.loss_genA2B = self.criterionGAN(self.disA(self.fake_B)[0], Tensor(1).fill_(1.0))
         self.loss_cyclic_A = self.criterionCycle(self.cyclic_A, self.real_A)
-        self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A)[0], Tensor(1).fill_(0.0))
+        self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A)[0], Tensor(1).fill_(1.0))
         self.loss_cyclic_B = self.criterionCycle(self.cyclic_B, self.real_B)
         self.loss_G = self.loss_genA2B + self.loss_genB2A + 10 * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
 
@@ -108,3 +108,8 @@ class CycleGAN(nn.Module):
 
         self.optimizer_D.step()
         return self.loss_D_A, self.loss_D_B, self.loss_G, self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
+
+    def test(self):
+        self.fake_B = self.genA2B(self.real_A)
+        self.fake_A = self.loss_genB2A(self.real_B)
+        return self.disA(self.fake_A)[0],self.disB(self.fake_B)[0]
