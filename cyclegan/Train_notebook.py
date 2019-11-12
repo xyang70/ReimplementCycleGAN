@@ -29,7 +29,7 @@ import matplotlib.gridspec as gridspec
 
 # In[2]:
 parser = argparse.ArgumentParser()
-parser.add_argument('--epoch', type=int, default=10, help='starting epoch')
+#parser.add_argument('--epoch', type=int, default=10, help='starting epoch')
 parser.add_argument('--dataroot', type=str, default='../datasets/monet2photo/', help='root directory of the dataset')
 parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
 parser.add_argument('--size', type=int, default=256, help='size of the data crop (squared assumed)')
@@ -128,10 +128,10 @@ def save_image(image,batch_id,name,directory):
 
 #256 x 256
 transform_train = [transforms.RandomCrop(256, padding=4),transforms.RandomHorizontalFlip(p=2),
-                   transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])]
+                   transforms.ToTensor()]
 transform_test = [transforms.ToTensor()]
-trainset = ImageDataset('../datasets/monet2photo/', transforms_=transform_train,mode='train')
-testset = ImageDataset('../datasets/monet2photo/', transforms_=transform_train,mode='test')
+trainset = ImageDataset(opt.dataroot, transforms_=transform_train,mode='train')
+testset = ImageDataset(opt.dataroot, transforms_=transform_train,mode='test')
 train_loader = DataLoader(trainset,batch_size=opt.batchSize, shuffle=True)
 test_loader = DataLoader(testset,batch_size=opt.batchSize, shuffle=True)
 print(len(trainset))
