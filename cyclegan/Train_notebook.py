@@ -171,6 +171,8 @@ for epoch in range(1,num_epochs+1):
         #print(data)
         A = data['A'].to(device)
         B = data['B'].to(device)
+        if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
+            continue
         #print(B.shape)
         #show_image(A)
         #show_image(B)
@@ -222,6 +224,8 @@ loss_model_G = 0
 for batch_idx, data in enumerate(test_loader):
     A = data['A'].to(device)
     B = data['B'].to(device)
+    if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
+        continue
     model.load(A,B)
     ## fix these
     fake_B,cyclic_A,fake_A,cyclic_B = model.forward()
