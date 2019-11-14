@@ -172,7 +172,6 @@ for epoch in range(1,num_epochs+1):
         A = data['A'].to(device)
         #print(A.size())
         B = data['B'].to(device)
-        #print(B.size())
         if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
             continue
         #print(B.shape)
