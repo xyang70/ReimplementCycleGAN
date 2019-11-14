@@ -1,4 +1,4 @@
-FILE='monet2photo'
+FILE='horse2zebra'
 
 
 echo "Specified [$FILE]"

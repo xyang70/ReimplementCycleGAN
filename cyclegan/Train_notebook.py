@@ -30,7 +30,7 @@ import matplotlib.gridspec as gridspec
 # In[2]:
 parser = argparse.ArgumentParser()
 #parser.add_argument('--epoch', type=int, default=10, help='starting epoch')
-parser.add_argument('--dataroot', type=str, default='../datasets/monet2photo/', help='root directory of the dataset')
+parser.add_argument('--dataroot', type=str, default='../datasets/horse2zebra/', help='root directory of the dataset')
 parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
 parser.add_argument('--size', type=int, default=256, help='size of the data crop (squared assumed)')
 parser.add_argument('--input_nc', type=int, default=3, help='number of channels of input data')
@@ -76,7 +76,7 @@ opt = parser.parse_args()
 # In[6]:
 
 
-LR = 0.001
+LR = 0.0002
 # batch_size = 200
 num_epochs = opt.epochs
 
@@ -170,7 +170,11 @@ for epoch in range(1,num_epochs+1):
         #print('--------')
         #print(data)
         A = data['A'].to(device)
+        #print(A.size())
         B = data['B'].to(device)
+        #print(B.size())
+        if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
+            continue
         #print(B.shape)
         #show_image(A)
         #show_image(B)
@@ -222,6 +226,8 @@ loss_model_G = 0
 for batch_idx, data in enumerate(test_loader):
     A = data['A'].to(device)
     B = data['B'].to(device)
+    if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
+        continue
     model.load(A,B)
     ## fix these
     fake_B,cyclic_A,fake_A,cyclic_B = model.forward()
