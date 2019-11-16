@@ -39,6 +39,8 @@ parser.add_argument('--n_cpu', type=int, default=8, help='number of cpu threads 
 parser.add_argument('--batchSize', type=int, default=1, help='batch size')
 parser.add_argument('--epochs', type=int, default=75, help='number of epochs')
 parser.add_argument('--lambd', type=float, default=10, help='weighr for cycle consistency loss')
+parser.add_argument('--distributed', type=bool, default=False, help='Turn on/off distributed training')
+
 
 
 # In[3]:
@@ -52,7 +54,32 @@ parser.add_argument('--lambd', type=float, default=10, help='weighr for cycle co
 opt = parser.parse_args()
 
 # In[4]:
+if opt.distributed:
+    print("Set up distributed calculateion parameter")
+    cmd = "/sbin/ifconfig"
+    out, err = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE).communicate()
+    ip = str(out).split("inet addr:")[1].split()[0]
 
+    name = MPI.Get_processor_name()
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank() #get the number of each node
+    num_nodes = int(comm.Get_size())
+
+    ip = comm.gather(ip)
+
+    if rank != 0:
+      ip = None
+
+    ip = comm.bcast(ip, root=0)
+
+    os.environ['MASTER_ADDR'] = ip[0]
+    os.environ['MASTER_PORT'] = '2222'
+
+    backend = 'mpi'
+    dist.init_process_group(backend, rank=rank, world_size=num_nodes)
+
+    dtype = torch.FloatTensor
 
 # class opt():
 #     batchSize = 4
@@ -148,6 +175,12 @@ directory = 'test_output'
 if not os.path.exists(directory):
     os.makedirs(directory)
 # scheduler = lr_scheduler.StepLR(optimizer, step_size=scheduler_step_size, gamma=0.1)
+
+if opt.distributed:
+    for param in model.parameters():
+        tensor0 = param.data
+        dist.all_reduce(tensor0, op=dist.reduce_op.SUM)
+        param.data = tensor0/np.sqrt(np.float(num_nodes))
 
 
 # ### Training
