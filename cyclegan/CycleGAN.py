@@ -39,10 +39,10 @@ class CycleGAN(nn.Module):
         super(CycleGAN, self).__init__()
         self.is_train = is_train
         self.opt = opt
-        self.genA2B = Generator().cuda()
-        self.genB2A = Generator().cuda()
-        self.disA = Discriminator().cuda()
-        self.disB = Discriminator().cuda()
+        self.genA2B = Generator()
+        self.genB2A = Generator()
+        self.disA = Discriminator()
+        self.disB = Discriminator()
 
         self.criterionGAN = nn.MSELoss()
         self.criterionCycle = nn.L1Loss()

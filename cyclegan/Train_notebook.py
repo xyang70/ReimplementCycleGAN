@@ -30,7 +30,7 @@ import matplotlib.gridspec as gridspec
 # In[2]:
 parser = argparse.ArgumentParser()
 #parser.add_argument('--epoch', type=int, default=10, help='starting epoch')
-parser.add_argument('--dataroot', type=str, default='../datasets/horse2zebra/', help='root directory of the dataset')
+parser.add_argument('--dataroot', type=str, default='../datasets/monet2photo/', help='root directory of the dataset')
 parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate')
 parser.add_argument('--size', type=int, default=256, help='size of the data crop (squared assumed)')
 parser.add_argument('--input_nc', type=int, default=3, help='number of channels of input data')
@@ -182,7 +182,7 @@ for epoch in range(1,num_epochs+1):
         loss_A+=lossD_A
         loss_B+=lossD_B
         loss_model_G+=loss_G
-        if batch_idx%500 == 0:
+        if batch_idx%3000 == 0:
             save_image(A,batch_idx,str(epoch)+'input_A',directory)
             save_image(B,batch_idx,str(epoch)+'input_B',directory)
             save_image(cyclic_A,batch_idx,str(epoch)+'cyclic_A',directory)
