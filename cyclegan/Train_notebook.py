@@ -23,12 +23,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-
 from torch.autograd import Variable
-import torch.distributed as dist
-import os
-import subprocess
-from mpi4py import MPI
+
 
 
 # ## Optional
@@ -61,6 +57,11 @@ opt = parser.parse_args()
 
 # In[4]:
 if opt.distributed:
+    import torch.distributed as dist
+    import os
+    import subprocess
+    from mpi4py import MPI
+
     print("Set up distributed calculateion parameter")
     cmd = "/sbin/ifconfig"
     out, err = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
@@ -146,7 +147,7 @@ def plot_graph(num_epochs,acc_list,loss_list):
 def save_image(image,batch_id,name,directory):
     file_name = directory+"/"+ str(batch_id) + "_"+name + ".png"
     fig = plt.figure()
-    plt.imshow(image.detach().cpu()[0].permute(1,2,0))
+    plt.imshow(image.detach().cpu()[0].permute(1,2,0).data.numpy())
     fig.savefig(file_name, bbox_inches='tight')
     plt.close(fig)
 
@@ -174,9 +175,8 @@ print(len(testset))
 
 # In[10]:
 
-
 #device = torch.cuda()#device('cuda' if torch.cuda.is_available() else 'cpu')
-model = CycleGAN(opt).cuda()
+model = CycleGAN(opt)
 directory = 'test_output'
 if not os.path.exists(directory):
     os.makedirs(directory)
@@ -188,6 +188,7 @@ if opt.distributed:
         dist.all_reduce(tensor0, op=dist.reduce_op.SUM)
         param.data = tensor0/np.sqrt(np.float(num_nodes))
 
+model.cuda()
 
 # ### Training
 

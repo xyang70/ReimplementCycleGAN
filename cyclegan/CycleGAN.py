@@ -8,7 +8,13 @@ from Generator import Generator
 from Discriminator import Discriminator
 from torch.autograd import Variable
 
+import torch.distributed as dist
+import os
+import subprocess
+
+
 Tensor = torch.cuda.FloatTensor
+num_nodes = 2
 #if opt.cuda else torch.Tensor
 #Tensor = torch.Tensor
 
