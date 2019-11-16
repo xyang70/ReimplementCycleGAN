@@ -169,8 +169,8 @@ print(len(testset))
 # In[10]:
 
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = CycleGAN(opt).to(device)
+device = torch.cuda()#device('cuda' if torch.cuda.is_available() else 'cpu')
+model = CycleGAN(opt).cuda()
 directory = 'test_output'
 if not os.path.exists(directory):
     os.makedirs(directory)
@@ -202,9 +202,9 @@ for epoch in range(1,num_epochs+1):
     for batch_idx, data in enumerate(train_loader):
         #print('--------')
         #print(data)
-        A = data['A'].to(device)
+        A = data['A'].cuda()#.to(device)
         #print(A.size())
-        B = data['B'].to(device)
+        B = data['B'].cuda()#.to(device)
         if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
             continue
         #print(B.shape)
