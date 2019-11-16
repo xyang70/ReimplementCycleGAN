@@ -24,6 +24,12 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
+from torch.autograd import Variable
+import torch.distributed as dist
+import os
+import subprocess
+from mpi4py import MPI
+
 
 # ## Optional
 
@@ -169,7 +175,7 @@ print(len(testset))
 # In[10]:
 
 
-device = torch.cuda()#device('cuda' if torch.cuda.is_available() else 'cpu')
+#device = torch.cuda()#device('cuda' if torch.cuda.is_available() else 'cpu')
 model = CycleGAN(opt).cuda()
 directory = 'test_output'
 if not os.path.exists(directory):
@@ -202,9 +208,9 @@ for epoch in range(1,num_epochs+1):
     for batch_idx, data in enumerate(train_loader):
         #print('--------')
         #print(data)
-        A = data['A'].cuda()#.to(device)
+        A = Variable(data['A']).cuda()#.to(device)
         #print(A.size())
-        B = data['B'].cuda()#.to(device)
+        B = Variable(data['B']).cuda()#.to(device)
         if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
             continue
         #print(B.shape)
