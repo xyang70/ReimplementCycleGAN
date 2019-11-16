@@ -6,6 +6,7 @@ import random
 import itertools
 from Generator import Generator
 from Discriminator import Discriminator
+from torch.autograd import Variable
 
 Tensor = torch.cuda.FloatTensor
 #if opt.cuda else torch.Tensor
@@ -83,10 +84,10 @@ class CycleGAN(nn.Module):
 
     def backward_D(self, D, real, fake):
         D_real = D(real)[0]
-        loss_D_real = self.criterionGAN(D_real, Tensor(1).fill_(1.0))
+        loss_D_real = self.criterionGAN(Variable(D_real), Tensor(1).fill_(1.0))
 
         D_fake = D(fake.detach())[0]
-        loss_D_fake = self.criterionGAN(D_fake, Tensor(1).fill_(0.0))
+        loss_D_fake = self.criterionGAN(Variable(D_fake), Tensor(1).fill_(0.0))
 
         loss_D = loss_D_real + loss_D_fake
         loss_D.backward()
@@ -100,10 +101,10 @@ class CycleGAN(nn.Module):
 
         self.optimizer_G.zero_grad()
         temp = self.disA(self.fake_B)
-        self.loss_genA2B = self.criterionGAN(self.disA(self.fake_B)[0], Tensor(1).fill_(1.0))
-        self.loss_cyclic_A = self.criterionCycle(self.cyclic_A, self.real_A)
-        self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A)[0], Tensor(1).fill_(1.0))
-        self.loss_cyclic_B = self.criterionCycle(self.cyclic_B, self.real_B)
+        self.loss_genA2B = self.criterionGAN(Variable(self.disA(self.fake_B)[0]), Variable(Tensor(1).fill_(1.0)))
+        self.loss_cyclic_A = self.criterionCycle(Variable(self.cyclic_A), Variable(self.real_A))
+        self.loss_genB2A = self.criterionGAN(Variable((self.disB(self.fake_A)[0]), Variable((Tensor(1).fill_(1.0)))
+        self.loss_cyclic_B = self.criterionCycle(Variable((self.cyclic_B), Variable(self.real_B))
         self.loss_G = self.loss_genA2B + self.loss_genB2A + self.opt.lambd * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
         self.loss_G.backward()
         #update the gradient for Generator

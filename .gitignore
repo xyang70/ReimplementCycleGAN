@@ -1,2 +1,5 @@
 datasets/monet2photo
+cyclegan/__pycache__/
+datasets/horse2zebra/
+
 
