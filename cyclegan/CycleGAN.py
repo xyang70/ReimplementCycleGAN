@@ -72,7 +72,7 @@ class CycleGAN(nn.Module):
         D_fake = D(fake.detach())[0]
         loss_D_fake = self.criterionGAN(D_fake, Tensor(1).fill_(0.0))
 
-        loss_D = loss_D_real + loss_D_fake
+        loss_D = (loss_D_real + loss_D_fake)*0.5
         loss_D.backward()
         return loss_D
 
