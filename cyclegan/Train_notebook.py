@@ -179,9 +179,9 @@ for epoch in range(1,num_epochs+1):
         #show_image(B)
         model.load(A, B)
         lossD_A,lossD_B,loss_G,fake_B,cyclic_A,fake_A,cyclic_B = model.optimize_parameters()
-        loss_A+=lossD_A
-        loss_B+=lossD_B
-        loss_model_G+=loss_G
+        loss_A+=lossD_A.item()
+        loss_B+=lossD_B.item()
+        loss_model_G+=loss_G.item()
         if batch_idx%3000 == 0:
             save_image(A,batch_idx,str(epoch)+'input_A',directory)
             save_image(B,batch_idx,str(epoch)+'input_B',directory)
