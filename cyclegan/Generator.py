@@ -4,7 +4,7 @@ BATCH_SIZE = 1
 # IMG_WIDTH = 256 
 # IMG_HEIGHT = 256
 IMG_CHANNEL = 3
-BASE_GEN_FEATURE = 32
+BASE_GEN_FEATURE = 64
 
 class ResnetBlock(nn.Module):
     def __init__(self):
@@ -12,7 +12,7 @@ class ResnetBlock(nn.Module):
         self.block = nn.Sequential(
             nn.ReflectionPad2d(1),
             nn.Conv2d(BASE_GEN_FEATURE*4, BASE_GEN_FEATURE*4, kernel_size=3, stride=1, padding=0),
-            nn.BatchNorm2d(BASE_GEN_FEATURE*4)
+            nn.InstanceNorm2d(BASE_GEN_FEATURE*4)
         )
         self.relu = nn.Sequential(
             nn.ReLU()
