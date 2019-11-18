@@ -3,7 +3,8 @@
 
 # In[1]:
 
-
+import matplotlib
+matplotlib.use('Agg')
 from PIL import Image
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
@@ -23,8 +24,7 @@ from ImageDataset import ImageDataset
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 import argparse
-import matplotlib
-matplotlib.use('Agg')
+
 
 # ## Optional
 
