@@ -213,7 +213,7 @@ for epoch in range(1, num_epochs+1):
     loss_B /= len(trainset)
     loss_model_G /= len(trainset)
     end_time = time.time()
-    result = 'TimeStamp:{},Epoch:{}, Training Time: {},lossD_A :{},lossD_B:{},loss_G:{}'.format(
+    result = 'TimeStamp:{},Epoch:{}, Training Time: {},lossD_A :{},lossD_B:{},loss_G:{}\n'.format(
         time.ctime(), epoch, end_time-start_time, loss_A, loss_B, loss_model_G)
     with open("training_logistics.txt", "a") as myfile:
         myfile.write(result)
