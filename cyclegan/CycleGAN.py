@@ -46,6 +46,8 @@ class CycleGAN(nn.Module):
 
         self.criterionGAN = nn.MSELoss()
         self.criterionCycle = nn.L1Loss()
+        if self.opt.lambd_identity > 0:
+            self.criterionIdentity = nn.L1Loss()
 
         self.lr_scheduler = None
         self.optimizer_G = optim.Adam(itertools.chain(self.genA2B.parameters(), self.genB2A.parameters()), lr=self.opt.lr)
@@ -65,6 +67,7 @@ class CycleGAN(nn.Module):
         self.fake_A = self.genB2A(self.real_B)
         self.cyclic_B = self.genA2B(self.fake_A)
         return self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
+
     def backward_D(self, D, real, fake):
         D_real = D(real)[0]
         loss_D_real = self.criterionGAN(D_real, Tensor(1).fill_(1.0))
@@ -85,12 +88,22 @@ class CycleGAN(nn.Module):
         self.disB.set_grad(False)
 
         self.optimizer_G.zero_grad()
-        temp = self.disA(self.fake_B)
+
+        if self.opt.lambd_identity > 0:
+            identity_A = self.genB2A(self.real_A)
+            self.loss_identity_A = self.criterionIdentity(self.real_A, identity_A) * self.opt.lambd_identity
+            identity_B = self.genA2B(self.real_B)
+            self.loss_identity_B = self.criterionIdentity(self.real_B, identity_B) * self.opt.lambd_identity
+            
+
         self.loss_genA2B = self.criterionGAN(self.disA(self.fake_B)[0], Tensor(1).fill_(1.0))
         self.loss_cyclic_A = self.criterionCycle(self.cyclic_A, self.real_A)
         self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A)[0], Tensor(1).fill_(1.0))
         self.loss_cyclic_B = self.criterionCycle(self.cyclic_B, self.real_B)
         self.loss_G = self.loss_genA2B + self.loss_genB2A + self.opt.lambd * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
+
+        if self.opt.lambd_identity > 0:
+            self.loss_G += self.loss_identity_A + self.loss_identity_B
 
         self.loss_G.backward()
         for group in self.optimizer_G.param_groups:
@@ -119,8 +132,3 @@ class CycleGAN(nn.Module):
                         state['step'] = 1000
         self.optimizer_D.step()
         return self.loss_D_A, self.loss_D_B, self.loss_G, self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
-
-    def test(self):
-        self.fake_B = self.genA2B(self.real_A)
-        self.fake_A = self.genB2A(self.real_B)
-        return self.disA(self.fake_A)[0],self.disB(self.fake_B)[0]

@@ -47,7 +47,8 @@ parser.add_argument('--batchSize', type=int, default=1, help='batch size')
 parser.add_argument('--epochs', type=int, default=75, help='number of epochs')
 parser.add_argument('--lambd', type=float, default=10,
                     help='weighr for cycle consistency loss')
-
+parser.add_argument('--lambd_identity', type=float, default=0.,
+                    help='weight for identity loss, default 0 means no identity loss')
 
 # In[3]:
 
@@ -235,36 +236,36 @@ for epoch in range(1, num_epochs+1):
 print('-' * 20)
 
 
-# In[ ]:
-directory = 'test_output'
-if not os.path.exists(directory):
-    os.makedirs(directory)
-model.eval()
-loss_A = 0
-loss_B = 0
-loss_model_G = 0
-epoch = 0
-for batch_idx, data in enumerate(test_loader):
-    A = data['A'].to(device)
-    B = data['B'].to(device)
-    if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
-        continue
-    model.load(A, B)
-    # fix these
-    fake_B, cyclic_A, fake_A, cyclic_B = model.forward()
-    #dis_A_fake_A,dis_B_fake_B = model.test()
-    # loss_B+=lossD_B
-    # loss_model_G+=loss_G
-    save_image_internal(A, epoch, batch_idx, 'input_A', directory)
-    save_image_internal(B, epoch, batch_idx, 'input_B', directory)
-    save_image_internal(cyclic_A, epoch, batch_idx, 'cyclic_A', directory)
-    save_image_internal(fake_B, epoch, batch_idx, 'fake_B', directory)
-    save_image_internal(fake_A, epoch, batch_idx, 'fake_A', directory)
-    save_image_internal(cyclic_B, epoch, batch_idx, 'cyclic_B', directory)
-loss_A /= len(testset)
-loss_B /= len(testset)
-loss_model_G /= len(testset)
-print('lossD_A :{},lossD_B:{},loss_G:{}'.format(loss_A, loss_B, loss_model_G))
+# # In[ ]:
+# directory = 'test_output'
+# if not os.path.exists(directory):
+#     os.makedirs(directory)
+# model.eval()
+# loss_A = 0
+# loss_B = 0
+# loss_model_G = 0
+# epoch = 0
+# for batch_idx, data in enumerate(test_loader):
+#     A = data['A'].to(device)
+#     B = data['B'].to(device)
+#     if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
+#         continue
+#     model.load(A, B)
+#     # fix these
+#     fake_B, cyclic_A, fake_A, cyclic_B = model.forward()
+#     #dis_A_fake_A,dis_B_fake_B = model.test()
+#     # loss_B+=lossD_B
+#     # loss_model_G+=loss_G
+#     save_image_internal(A, epoch, batch_idx, 'input_A', directory)
+#     save_image_internal(B, epoch, batch_idx, 'input_B', directory)
+#     save_image_internal(cyclic_A, epoch, batch_idx, 'cyclic_A', directory)
+#     save_image_internal(fake_B, epoch, batch_idx, 'fake_B', directory)
+#     save_image_internal(fake_A, epoch, batch_idx, 'fake_A', directory)
+#     save_image_internal(cyclic_B, epoch, batch_idx, 'cyclic_B', directory)
+# loss_A /= len(testset)
+# loss_B /= len(testset)
+# loss_model_G /= len(testset)
+# print('lossD_A :{},lossD_B:{},loss_G:{}'.format(loss_A, loss_B, loss_model_G))
 
 
 # In[ ]:
