@@ -13,7 +13,7 @@ Tensor = torch.cuda.FloatTensor
 
 class LambdaLR():
     def __init__(self, n_epochs, offset, decay_start_epoch):
-        assert ((n_epochs - decay_start_epoch) > 0)
+        assert ((n_epochs - decay_start_epoch) > 0),"Decay must start before the training sessions ends!"
         self.n_epochs = n_epochs
         self.offset = offset
         self.decay_start_epoch = decay_start_epoch
@@ -64,12 +64,12 @@ class CycleGAN(nn.Module):
         if self.opt.lambd_identity > 0:
             self.criterionIdentity = nn.L1Loss()
 
-        self.lr_scheduler = None
         self.optimizer_G = optim.Adam(itertools.chain(self.genA2B.parameters(), self.genB2A.parameters()), lr=self.opt.lr, betas=(0.5, 0.999))
         self.optimizer_D = optim.Adam(itertools.chain(self.disA.parameters(), self.disB.parameters()), lr=self.opt.lr, betas=(0.5, 0.999))
         self.optimizers = [self.optimizer_G, self.optimizer_D]
 
-        self.lr_scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizers, lr_lambda=LambdaLR(self.opt.total_epochs, self.opt.start_epoch, self.opt.decay_epoch).step)
+        self.lr_scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizer_G, lr_lambda=LambdaLR(self.opt.epochs, self.opt.start_epoch, self.opt.decay_epoch).step)
+        self.lr_scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizer_D, lr_lambda=LambdaLR(self.opt.epochs, self.opt.start_epoch, self.opt.decay_epoch).step)
 
         self.fake_As = ReplayBuffer()
         self.fake_Bs = ReplayBuffer()
@@ -77,12 +77,12 @@ class CycleGAN(nn.Module):
     def load(self, A, B):
         self.real_A = A
         self.real_B = B
-    def weights_init_normal(m):
+    def weights_init_normal(self,m):
         classname = m.__class__.__name__
         if classname.find('Conv') != -1:
-            torch.nn.init.normal(m.weight.data, 0.0, 0.02)
+            torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
         elif classname.find('BatchNorm2d') != -1:
-            torch.nn.init.normal(m.weight.data, 1.0, 0.02)
+            torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
             torch.nn.init.constant(m.bias.data, 0.0)
 
     def forward(self):
