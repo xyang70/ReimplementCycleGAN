@@ -11,6 +11,17 @@ Tensor = torch.cuda.FloatTensor
 #if opt.cuda else torch.Tensor
 #Tensor = torch.Tensor
 
+class LambdaLR():
+    def __init__(self, n_epochs, offset, decay_start_epoch):
+        assert ((n_epochs - decay_start_epoch) > 0)
+        self.n_epochs = n_epochs
+        self.offset = offset
+        self.decay_start_epoch = decay_start_epoch
+
+    def step(self, epoch):
+        return 1.0 - max(0, epoch + self.offset - self.decay_start_epoch)/(self.n_epochs - self.decay_start_epoch)
+
+
 class ReplayBuffer(object):
     def __init__(self, capacity=50):
         self.capacity = capacity
@@ -50,9 +61,11 @@ class CycleGAN(nn.Module):
             self.criterionIdentity = nn.L1Loss()
 
         self.lr_scheduler = None
-        self.optimizer_G = optim.Adam(itertools.chain(self.genA2B.parameters(), self.genB2A.parameters()), lr=self.opt.lr)
-        self.optimizer_D = optim.Adam(itertools.chain(self.disA.parameters(), self.disB.parameters()), lr=self.opt.lr)
+        self.optimizer_G = optim.Adam(itertools.chain(self.genA2B.parameters(), self.genB2A.parameters()), lr=self.opt.lr, betas=(0.5, 0.999))
+        self.optimizer_D = optim.Adam(itertools.chain(self.disA.parameters(), self.disB.parameters()), lr=self.opt.lr, betas=(0.5, 0.999))
         self.optimizers = [self.optimizer_G, self.optimizer_D]
+
+        self.lr_scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizers, lr_lambda=LambdaLR(self.opt.total_epochs, self.opt.start_epoch, self.opt.decay_epoch).step)
 
         self.fake_As = ReplayBuffer()
         self.fake_Bs = ReplayBuffer()
