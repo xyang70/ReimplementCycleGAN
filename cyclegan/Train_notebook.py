@@ -51,7 +51,7 @@ parser.add_argument('--lambd_identity', type=float, default=0.,
                     help='weight for identity loss, default 0 means no identity loss')
 parser.add_argument('--start_epoch', type=int, default=0,
                     help='start_epoch for lr scheduler')
-parser.add_argument('--decay_epoch', type=int, default=0,
+parser.add_argument('--decay_epoch', type=int, default=100,
                     help='decay_epoch for lr scheduler')
 
 # In[3]:
