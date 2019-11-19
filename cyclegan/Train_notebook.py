@@ -157,6 +157,7 @@ test_loader = DataLoader(testset, batch_size=opt.batchSize, shuffle=True)
 print(len(trainset))
 print(len(testset))
 
+open('output.txt', 'w').close()
 
 # ### Declaration
 
@@ -204,7 +205,7 @@ for epoch in range(1, num_epochs+1):
         loss_A += lossD_A.item()
         loss_B += lossD_B.item()
         loss_model_G += loss_G.item()
-        if batch_idx % 2000 == 0:
+        if batch_idx % 500 == 0:
             save_image_internal(A, epoch, batch_idx, 'input_A', directory)
             save_image_internal(B, epoch, batch_idx, 'input_B', directory)
             save_image_internal(cyclic_A, epoch, batch_idx,
