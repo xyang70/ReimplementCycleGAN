@@ -54,6 +54,10 @@ class CycleGAN(nn.Module):
         self.genB2A = Generator()
         self.disA = Discriminator()
         self.disB = Discriminator()
+        self.genA2B.apply(self.weights_init_normal)
+        self.genB2A.apply(self.weights_init_normal)
+        self.disA.apply(self.weights_init_normal)
+        self.disB.apply(self.weights_init_normal)
 
         self.criterionGAN = nn.MSELoss()
         self.criterionCycle = nn.L1Loss()
@@ -73,6 +77,13 @@ class CycleGAN(nn.Module):
     def load(self, A, B):
         self.real_A = A
         self.real_B = B
+    def weights_init_normal(m):
+        classname = m.__class__.__name__
+        if classname.find('Conv') != -1:
+            torch.nn.init.normal(m.weight.data, 0.0, 0.02)
+        elif classname.find('BatchNorm2d') != -1:
+            torch.nn.init.normal(m.weight.data, 1.0, 0.02)
+            torch.nn.init.constant(m.bias.data, 0.0)
 
     def forward(self):
         self.fake_B = self.genA2B(self.real_A)
