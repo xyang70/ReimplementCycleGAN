@@ -157,7 +157,7 @@ test_loader = DataLoader(testset, batch_size=opt.batchSize, shuffle=True)
 print(len(trainset))
 print(len(testset))
 
-open('output.txt', 'w').close()
+open('training_logistics.txt', 'w').close()
 
 # ### Declaration
 
