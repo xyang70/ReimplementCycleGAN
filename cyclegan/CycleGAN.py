@@ -66,10 +66,10 @@ class CycleGAN(nn.Module):
 
         self.optimizer_G = optim.Adam(itertools.chain(self.genA2B.parameters(), self.genB2A.parameters()), lr=self.opt.lr, betas=(0.5, 0.999))
         self.optimizer_D = optim.Adam(itertools.chain(self.disA.parameters(), self.disB.parameters()), lr=self.opt.lr, betas=(0.5, 0.999))
-        self.optimizers = [self.optimizer_G, self.optimizer_D]
+        # self.optimizers = [self.optimizer_G, self.optimizer_D]
 
-        self.lr_scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizer_G, lr_lambda=LambdaLR(self.opt.epochs, self.opt.start_epoch, self.opt.decay_epoch).step)
-        self.lr_scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizer_D, lr_lambda=LambdaLR(self.opt.epochs, self.opt.start_epoch, self.opt.decay_epoch).step)
+        self.lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(self.optimizer_G, lr_lambda=LambdaLR(self.opt.epochs, self.opt.start_epoch, self.opt.decay_epoch).step)
+        self.lr_scheduler_D = torch.optim.lr_scheduler.LambdaLR(self.optimizer_D, lr_lambda=LambdaLR(self.opt.epochs, self.opt.start_epoch, self.opt.decay_epoch).step)
 
         self.fake_As = ReplayBuffer()
         self.fake_Bs = ReplayBuffer()
