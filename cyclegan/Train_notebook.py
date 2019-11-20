@@ -205,6 +205,7 @@ for epoch in range(1, num_epochs+1):
         loss_A += lossD_A.item()
         loss_B += lossD_B.item()
         loss_model_G += loss_G.item()
+
         if batch_idx % 500 == 0:
             save_image_internal(A, epoch, batch_idx, 'input_A', directory)
             save_image_internal(B, epoch, batch_idx, 'input_B', directory)
@@ -221,6 +222,10 @@ for epoch in range(1, num_epochs+1):
     end_time = time.time()
     result = 'TimeStamp:{},Epoch:{}, Training Time: {},lossD_A :{},lossD_B:{},loss_G:{}\n'.format(
         time.ctime(), epoch, end_time-start_time, loss_A, loss_B, loss_model_G)
+
+    model.lr_scheduler_G.step()
+    model.lr_scheduler_D.step()
+
     with open("training_logistics.txt", "a") as myfile:
         myfile.write(result)
     print(result)
