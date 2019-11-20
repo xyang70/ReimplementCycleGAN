@@ -179,12 +179,12 @@ if not os.path.exists(directory):
 
 acc_list = []
 loss_list = []
-loss_A = 0
-loss_B = 0
-loss_model_G = 0
+
 model.train()
 for epoch in range(1, num_epochs+1):
-
+    loss_A = 0
+    loss_B = 0
+    loss_model_G = 0
     start_time = time.time()
     running_loss = 0.0
     acc = 0.0
