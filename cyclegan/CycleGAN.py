@@ -130,12 +130,14 @@ class CycleGAN(nn.Module):
             self.loss_G += self.loss_identity_A + self.loss_identity_B
 
         self.loss_G.backward()
+
         for group in self.optimizer_G.param_groups:
             for p in group['params']:
                 state = self.optimizer_G.state[p]
                 if 'step' in state.keys():
-                    if(state['step']>=1024):
+                    if(state['step']>=1022):
                         state['step'] = 1000
+
         self.optimizer_G.step()
 
         # optimize Discriminator: calc loss of D -> backward -> update weights
@@ -148,13 +150,14 @@ class CycleGAN(nn.Module):
         self.loss_D_A = self.backward_D(self.disA, self.real_A, fake_A)
         fake_B = self.fake_Bs.add_and_sample(self.fake_B, self.opt.batchSize) #opt.batchsize
         self.loss_D_B = self.backward_D(self.disB, self.real_B, fake_B)
-        
+
         for group in self.optimizer_D.param_groups:
             for p in group['params']:
                 state = self.optimizer_D.state[p]
                 if 'step' in state.keys():
-                    if(state['step']>=1024):
+                    if(state['step']>=1022):
                         state['step'] = 1000
+
         self.optimizer_D.step()
 
         return self.loss_D_A, self.loss_D_B, self.loss_G, self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
