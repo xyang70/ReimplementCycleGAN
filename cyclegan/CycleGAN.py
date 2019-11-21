@@ -77,13 +77,14 @@ class CycleGAN(nn.Module):
     def load(self, A, B):
         self.real_A = A
         self.real_B = B
+
     def weights_init_normal(self,m):
         classname = m.__class__.__name__
         if classname.find('Conv') != -1:
             torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
         elif classname.find('BatchNorm2d') != -1:
             torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
-            torch.nn.init.constant(m.bias.data, 0.0)
+            torch.nn.init.constant_(m.bias.data, 0.0)
 
     def forward(self):
         self.fake_B = self.genA2B(self.real_A)
@@ -105,7 +106,6 @@ class CycleGAN(nn.Module):
 
     def optimize_parameters(self):
         self.forward()
-
 
         # optimize Generator: calc loss of G -> backward -> update weights
         self.disA.set_grad(False)
@@ -148,6 +148,7 @@ class CycleGAN(nn.Module):
         self.loss_D_A = self.backward_D(self.disA, self.real_A, fake_A)
         fake_B = self.fake_Bs.add_and_sample(self.fake_B, self.opt.batchSize) #opt.batchsize
         self.loss_D_B = self.backward_D(self.disB, self.real_B, fake_B)
+        
         for group in self.optimizer_D.param_groups:
             for p in group['params']:
                 state = self.optimizer_D.state[p]
@@ -155,4 +156,5 @@ class CycleGAN(nn.Module):
                     if(state['step']>=1024):
                         state['step'] = 1000
         self.optimizer_D.step()
+
         return self.loss_D_A, self.loss_D_B, self.loss_G, self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
