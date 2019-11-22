@@ -59,7 +59,7 @@ class CycleGAN(nn.Module):
         self.disA.apply(self.weights_init_normal)
         self.disB.apply(self.weights_init_normal)
 
-        self.criterionGAN = nn.MSELoss()
+        self.criterionGAN = nn.BCEWithLogitsLoss()
         self.criterionCycle = nn.L1Loss()
         if self.opt.lambd_identity > 0:
             self.criterionIdentity = nn.L1Loss()
