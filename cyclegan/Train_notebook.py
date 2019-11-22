@@ -151,7 +151,7 @@ transform_test = [transforms.ToTensor(),
                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 trainset = ImageDataset(
     opt.dataroot, transforms_=transform_train, mode='train')
-testset = ImageDataset(opt.dataroot, transforms_=transform_train, mode='test')
+testset = ImageDataset(opt.dataroot, transforms_=transform_test, mode='test')
 train_loader = DataLoader(trainset, batch_size=opt.batchSize, shuffle=True)
 test_loader = DataLoader(testset, batch_size=opt.batchSize, shuffle=True)
 print(len(trainset))
