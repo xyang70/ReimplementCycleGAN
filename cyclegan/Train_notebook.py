@@ -186,14 +186,9 @@ for epoch in range(1, num_epochs+1):
     acc = 0.0
     print("epoch {}/{}".format(epoch, num_epochs))
     for batch_idx, data in enumerate(train_loader):
-        # print('--------')
-        # print(data)
         A = data['A'].to(device)
-        # print(A.size())
         B = data['B'].to(device)
-        if A.size() != (1, 3, 256, 256) or B.size() != (1, 3, 256, 256):
-            print("//////////////////////continue//////////////////////")
-            continue
+
 
         model.load(A, B)
         lossD_A, lossD_B, loss_G, fake_B, cyclic_A, fake_A, cyclic_B = model.optimize_parameters()
@@ -210,7 +205,6 @@ for epoch in range(1, num_epochs+1):
             save_image_internal(fake_A, epoch, batch_idx, 'fake_A', directory)
             save_image_internal(cyclic_B, epoch, batch_idx,
                                 'cyclic_B', directory)
-#         break
     loss_A /= len(trainset)
     loss_B /= len(trainset)
     loss_model_G /= len(trainset)
