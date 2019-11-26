@@ -13,7 +13,7 @@ def to_rgb(image):
     return rgb_image
 
 class ImageDataset(Dataset):
-    def __init__(self, root, transforms_=None, unaligned=False, mode='train'):
+    def __init__(self, root, transforms_=None, unaligned=True, mode='train'):
         self.transform = transforms.Compose(transforms_)
         self.unaligned = unaligned
 
@@ -38,22 +38,6 @@ class ImageDataset(Dataset):
         item_B = self.transform(image_B)
         return {"A": item_A, "B": item_B}
 
-        """
-        item_A = self.transform(Image.open(self.files_A[index % len(self.files_A)]))
 
-        if self.unaligned:
-            item_B = self.transform(Image.open(self.files_B[random.randint(0, len(self.files_B) - 1)]))
-        else:
-            item_B = self.transform(Image.open(self.files_B[index % len(self.files_B)]))
-
-
-        # Convert grayscale images to rgb
-        if item_A.mode != "RGB":
-            item_A = to_rgb(item_A)
-        if item_B.mode != "RGB":
-            item_B = to_rgb(item_B)
-
-        return {'A': item_A, 'B': item_B}
-        """
     def __len__(self):
         return max(len(self.files_A), len(self.files_B))
