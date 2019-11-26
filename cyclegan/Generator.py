@@ -50,8 +50,6 @@ class Generator(nn.Module):
             nn.ReLU(inplace=True),
             nn.ReflectionPad2d(3),
             nn.Conv2d(BASE_GEN_FEATURE, IMG_CHANNEL, kernel_size=7, stride=1),
-            #nn.InstanceNorm2d(IMG_CHANNEL*BATCH_SIZE),
-            # nn.ReLU(inplace=True),
             nn.Tanh()
         )
 
