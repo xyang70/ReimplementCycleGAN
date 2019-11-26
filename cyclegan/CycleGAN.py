@@ -96,7 +96,6 @@ class CycleGAN(nn.Module):
     def backward_D(self, D, real, fake):
         D_real = D(real)[0]
         loss_D_real = self.criterionGAN(D_real, Tensor(1).fill_(1.0))
-
         D_fake = D(fake.detach())[0]
         loss_D_fake = self.criterionGAN(D_fake, Tensor(1).fill_(0.0))
 
@@ -104,9 +103,8 @@ class CycleGAN(nn.Module):
         loss_D.backward()
         return loss_D
 
-    def optimize_parameters(self):
-        self.forward()
 
+    def optimze_G(self):
         # optimize Generator: calc loss of G -> backward -> update weights
         self.disA.set_grad(False)
         self.disB.set_grad(False)
@@ -139,8 +137,10 @@ class CycleGAN(nn.Module):
                         state['step'] = 1000
 
         self.optimizer_G.step()
-        #G backward end
 
+    def optimize_parameters(self):
+        self.forward()
+        self.optimze_G()
         # optimize Discriminator: calc loss of D -> backward -> update weights
         self.disA.set_grad(True)
         self.disB.set_grad(True)
@@ -148,8 +148,12 @@ class CycleGAN(nn.Module):
         self.optimizer_D.zero_grad()
 
         fake_A = self.fake_As.add_and_sample(self.fake_A, self.opt.batchSize) #opt.batchsize
+        #print("Loss DA")
+
         self.loss_D_A = self.backward_D(self.disA, self.real_A, fake_A)
         fake_B = self.fake_Bs.add_and_sample(self.fake_B, self.opt.batchSize) #opt.batchsize
+        #print("Loss DB")
+
         self.loss_D_B = self.backward_D(self.disB, self.real_B, fake_B)
 
         for group in self.optimizer_D.param_groups:
