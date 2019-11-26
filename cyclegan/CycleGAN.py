@@ -118,8 +118,8 @@ class CycleGAN(nn.Module):
             self.loss_identity_B = self.criterionIdentity(self.real_B, identity_B) * self.opt.lambd_identity
 
 
-        self.loss_genA2B = self.criterionGAN(self.disA(self.fake_B)[0], Tensor(1).fill_(1.0))
-        self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A)[0], Tensor(1).fill_(1.0))
+        self.loss_genA2B = self.criterionGAN(self.disB(self.fake_B)[0], Tensor(1).fill_(1.0))
+        self.loss_genB2A = self.criterionGAN(self.disA(self.fake_A)[0], Tensor(1).fill_(1.0))
         self.loss_cyclic_A = self.criterionCycle(self.cyclic_A, self.real_A)
         self.loss_cyclic_B = self.criterionCycle(self.cyclic_B, self.real_B)
         self.loss_G = self.loss_genA2B + self.loss_genB2A + self.opt.lambd * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
