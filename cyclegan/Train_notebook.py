@@ -44,14 +44,14 @@ parser.add_argument('--output_nc', type=int, default=3,
 parser.add_argument('--n_cpu', type=int, default=8,
                     help='number of cpu threads to use during batch generation')
 parser.add_argument('--batchSize', type=int, default=1, help='batch size')
-parser.add_argument('--epochs', type=int, default=75, help='number of epochs')
+parser.add_argument('--epochs', type=int, default=200, help='number of epochs')
 parser.add_argument('--lambd', type=float, default=10,
                     help='weighr for cycle consistency loss')
 parser.add_argument('--lambd_identity', type=float, default=5.,
                     help='weight for identity loss, default 0 means no identity loss')
 parser.add_argument('--start_epoch', type=int, default=0,
                     help='start_epoch for lr scheduler')
-parser.add_argument('--decay_epoch', type=int, default=50,
+parser.add_argument('--decay_epoch', type=int, default=100,
                     help='decay_epoch for lr scheduler')
 
 # In[3]:
@@ -151,7 +151,7 @@ trainset = ImageDataset(
 train_loader = DataLoader(trainset, batch_size=opt.batchSize, shuffle=True)
 #test_loader = DataLoader(testset, batch_size=opt.batchSize, shuffle=True)
 print(len(trainset))
-print(len(testset))
+#print(len(testset))
 
 open('training_logistics.txt', 'w').close()
 
