@@ -1,2 +1,5 @@
 datasets/monet2photo
-
+datasets/
+cyclegan/train_output/
+cyclegan/training_logistics.txt
+cyclegan/train_output

@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 BATCH_SIZE = 1
-# IMG_WIDTH = 256 
+# IMG_WIDTH = 256
 # IMG_HEIGHT = 256
 IMG_CHANNEL = 3
 BASE_GEN_FEATURE = 64
@@ -17,7 +17,7 @@ class ResnetBlock(nn.Module):
         self.relu = nn.Sequential(
             nn.ReLU()
         )
-        
+
     def forward(self, x):
         fx = self.block(x)
         fx = self.relu(fx)
@@ -50,18 +50,15 @@ class Generator(nn.Module):
             nn.ReLU(inplace=True),
             nn.ReflectionPad2d(3),
             nn.Conv2d(BASE_GEN_FEATURE, IMG_CHANNEL, kernel_size=7, stride=1),
-            nn.InstanceNorm2d(IMG_CHANNEL*BATCH_SIZE),
+            #nn.InstanceNorm2d(IMG_CHANNEL*BATCH_SIZE),
             # nn.ReLU(inplace=True),
             nn.Tanh()
         )
-        
+
 
     def forward(self, x): #256x256x3
         x = self.encoder(x)
         for i in range(self.n_blocks):
             x = self.resblock(x)
-        x = self.decoder(x) 
+        x = self.decoder(x)
         return x
-
-
-
