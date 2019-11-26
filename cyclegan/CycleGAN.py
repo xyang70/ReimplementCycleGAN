@@ -59,7 +59,7 @@ class CycleGAN(nn.Module):
         self.disA.apply(self.weights_init_normal)
         self.disB.apply(self.weights_init_normal)
 
-        self.criterionGAN = nn.BCEWithLogitsLoss()
+        self.criterionGAN = nn.MSELoss()
         self.criterionCycle = nn.L1Loss()
         if self.opt.lambd_identity > 0:
             self.criterionIdentity = nn.L1Loss()
@@ -91,7 +91,7 @@ class CycleGAN(nn.Module):
         self.cyclic_A = self.genB2A(self.fake_B)
         self.fake_A = self.genB2A(self.real_B)
         self.cyclic_B = self.genA2B(self.fake_A)
-        return self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
+        #return self.fake_B, self.cyclic_A, self.fake_A, self.cyclic_B
 
     def backward_D(self, D, real, fake):
         D_real = D(real)[0]
@@ -112,17 +112,17 @@ class CycleGAN(nn.Module):
         self.disB.set_grad(False)
 
         self.optimizer_G.zero_grad()
-
+        #G backward start
         if self.opt.lambd_identity > 0:
             identity_A = self.genB2A(self.real_A)
             self.loss_identity_A = self.criterionIdentity(self.real_A, identity_A) * self.opt.lambd_identity
             identity_B = self.genA2B(self.real_B)
             self.loss_identity_B = self.criterionIdentity(self.real_B, identity_B) * self.opt.lambd_identity
-            
+
 
         self.loss_genA2B = self.criterionGAN(self.disA(self.fake_B)[0], Tensor(1).fill_(1.0))
-        self.loss_cyclic_A = self.criterionCycle(self.cyclic_A, self.real_A)
         self.loss_genB2A = self.criterionGAN(self.disB(self.fake_A)[0], Tensor(1).fill_(1.0))
+        self.loss_cyclic_A = self.criterionCycle(self.cyclic_A, self.real_A)
         self.loss_cyclic_B = self.criterionCycle(self.cyclic_B, self.real_B)
         self.loss_G = self.loss_genA2B + self.loss_genB2A + self.opt.lambd * (self.loss_cyclic_A + self.loss_cyclic_B)  #opt.lambd
 
@@ -139,6 +139,7 @@ class CycleGAN(nn.Module):
                         state['step'] = 1000
 
         self.optimizer_G.step()
+        #G backward end
 
         # optimize Discriminator: calc loss of D -> backward -> update weights
         self.disA.set_grad(True)
