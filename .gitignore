@@ -2,5 +2,5 @@ datasets/
 cyclegan/train_output/
 cyclegan/training_logistics.txt
 cyclegan/train_output
-cyclegan/models/
-cyclegan/logs/
+*.log
+*.model
