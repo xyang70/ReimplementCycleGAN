@@ -92,8 +92,6 @@ num_epochs = opt.epochs
 # ### Helper Methods
 
 # In[7]:
-def get_min_max_mean(img):
-    return img.max().item(), img.min().item(), img.mean().item()
 
 def plot_graph(num_epochs, acc_list, loss_list):
     #usage : plot_graph(num_epochs,acc_list,loss_list)
@@ -118,6 +116,13 @@ def plot_graph(num_epochs, acc_list, loss_list):
 
 # In[8]:
 
+def save_img_to_para_folder(image, epoch, batch_id, name, directory, opt):
+    folder_name = "/ld_" + str(int(opt.lambd)) + "_id_" + str(int(opt.lambd_identity))
+    directory = directory + folder_name
+    if not os.path.isdir(directory):
+        print("Create folder for parameters", directory)
+        os.mkdir(directory)
+    save_image_internal(image, epoch, batch_id, name, directory)
 
 def save_image_internal(image, epoch, batch_id, name, directory):
     file_name = directory+"/" + \
@@ -150,10 +155,10 @@ trainset = ImageDataset(
 #testset = ImageDataset(opt.dataroot, transforms_=transform_test, mode='test')
 train_loader = DataLoader(trainset, batch_size=opt.batchSize, shuffle=True)
 #test_loader = DataLoader(testset, batch_size=opt.batchSize, shuffle=True)
-print(len(trainset))
+print("Number of training data:", len(trainset))
 #print(len(testset))
 
-open('training_logistics.txt', 'w').close()
+
 
 # ### Declaration
 
@@ -162,10 +167,16 @@ open('training_logistics.txt', 'w').close()
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = CycleGAN(opt).to(device)
-directory = 'train_output'
+
+#process path for log, output plot and model
+dataset_name = opt.dataroot.split("/")[-2]
+directory = "train_output/" + dataset_name
+print("DATA SET NAME:", dataset_name)
+
 if not os.path.exists(directory):
     os.makedirs(directory)
-# scheduler = lr_scheduler.StepLR(optimizer, step_size=scheduler_step_size, gamma=0.1)
+log_name = "./log/training_logistics_{}_ld_{}_id_{}.log".format(dataset_name, str(int(opt.lambd)), str(int(opt.lambd_identity)))
+open(log_name, 'w').close()
 
 
 # ### Training
@@ -185,6 +196,7 @@ for epoch in range(1, num_epochs+1):
     running_loss = 0.0
     acc = 0.0
     print("epoch {}/{}".format(epoch, num_epochs))
+    
     for batch_idx, data in enumerate(train_loader):
         A = data['A'].to(device)
         B = data['B'].to(device)
@@ -197,14 +209,14 @@ for epoch in range(1, num_epochs+1):
         loss_model_G += loss_G.item()
 
         if batch_idx % 500 == 0:
-            save_image_internal(A, epoch, batch_idx, 'input_A', directory)
-            save_image_internal(B, epoch, batch_idx, 'input_B', directory)
-            save_image_internal(cyclic_A, epoch, batch_idx,
-                                'cyclic_A', directory)
-            save_image_internal(fake_B, epoch, batch_idx, 'fake_B', directory)
-            save_image_internal(fake_A, epoch, batch_idx, 'fake_A', directory)
-            save_image_internal(cyclic_B, epoch, batch_idx,
-                                'cyclic_B', directory)
+            save_img_to_para_folder(A, epoch, batch_idx, 'input_A', directory, opt)
+            save_img_to_para_folder(B, epoch, batch_idx, 'input_B', directory, opt)
+            save_img_to_para_folder(cyclic_A, epoch, batch_idx,
+                                'cyclic_A', directory, opt)
+            save_img_to_para_folder(fake_B, epoch, batch_idx, 'fake_B', directory, opt)
+            save_img_to_para_folder(fake_A, epoch, batch_idx, 'fake_A', directory, opt)
+            save_img_to_para_folder(cyclic_B, epoch, batch_idx,
+                                'cyclic_B', directory, opt)
     loss_A /= len(trainset)
     loss_B /= len(trainset)
     loss_model_G /= len(trainset)
@@ -215,9 +227,9 @@ for epoch in range(1, num_epochs+1):
     model.lr_scheduler_G.step()
     model.lr_scheduler_D.step()
 
-    with open("training_logistics.txt", "a") as myfile:
+    with open(log_name, "a") as myfile:
         myfile.write(result)
     print(result)
-    torch.save(model, 'C_GAN.model')
+    torch.save(model, "./model/C_GAN_{}_ld_{}_id_{}.model".format(dataset_name, str(int(opt.lambd)), str(int(opt.lambd_identity) )))
 
 print('-' * 20)
