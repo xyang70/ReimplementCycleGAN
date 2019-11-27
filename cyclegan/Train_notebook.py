@@ -175,7 +175,7 @@ print("DATA SET NAME:", dataset_name)
 
 if not os.path.exists(directory):
     os.makedirs(directory)
-log_name = "./log/training_logistics_{}_ld_{}_id_{}.log".format(dataset_name, str(int(opt.lambd)), str(int(opt.lambd_identity)))
+log_name = "./logs/training_logistics_{}_ld_{}_id_{}.log".format(dataset_name, str(int(opt.lambd)), str(int(opt.lambd_identity)))
 open(log_name, 'w').close()
 
 
@@ -196,7 +196,7 @@ for epoch in range(1, num_epochs+1):
     running_loss = 0.0
     acc = 0.0
     print("epoch {}/{}".format(epoch, num_epochs))
-    
+
     for batch_idx, data in enumerate(train_loader):
         A = data['A'].to(device)
         B = data['B'].to(device)
@@ -230,6 +230,6 @@ for epoch in range(1, num_epochs+1):
     with open(log_name, "a") as myfile:
         myfile.write(result)
     print(result)
-    torch.save(model, "./model/C_GAN_{}_ld_{}_id_{}.model".format(dataset_name, str(int(opt.lambd)), str(int(opt.lambd_identity) )))
+    torch.save(model, "./models/C_GAN_{}_ld_{}_id_{}.model".format(dataset_name, str(int(opt.lambd)), str(int(opt.lambd_identity) )))
 
 print('-' * 20)
