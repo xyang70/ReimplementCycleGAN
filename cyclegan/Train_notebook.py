@@ -95,24 +95,17 @@ num_epochs = opt.epochs
 def get_min_max_mean(img):
     return img.max().item(), img.min().item(), img.mean().item()
 
-def plot_graph(num_epochs, acc_list, loss_list):
+def plot_graph(num_epochs, y_list, entity):
     #usage : plot_graph(num_epochs,acc_list,loss_list)
-    plt.ioff()
+    x_list = np.arange(1, num_epochs+1)
+    file_name = entity+"_plot.png"
     fig = plt.figure()
-    plt.subplot(2, 1, 1)
-    plt.ylabel('Training loss')
-    plt.plot(np.arange(num_epochs), loss_list, 'k-')
-    plt.title('Training Loss and Training Accuracy')
-    plt.xticks(np.arange(num_epochs, dtype=int))
-    plt.grid(True)
-
-    plt.subplot(2, 1, 2)
-    plt.plot(np.arange(num_epochs), acc_list, 'b-')
-    plt.ylabel('Training Accuracy')
-    plt.xlabel('Epochs')
-    plt.xticks(np.arange(num_epochs, dtype=int))
-    plt.grid(True)
-    plt.savefig("plot.png")
+    plt.plot(x_list,y_list)
+    plt.xlabel('Epoch')
+    plt.ylabel(entity)
+    plt.title('Epoch vs ' + entity)
+    plt.show()
+    plt.savefig(file_name)
     plt.close(fig)
 
 
@@ -173,8 +166,9 @@ if not os.path.exists(directory):
 # In[11]:
 
 
-acc_list = []
-loss_list = []
+loss_A_list = []
+loss_B_list = []
+loss_G_list = []
 
 model.train()
 for epoch in range(1, num_epochs+1):
@@ -208,6 +202,9 @@ for epoch in range(1, num_epochs+1):
     loss_A /= len(trainset)
     loss_B /= len(trainset)
     loss_model_G /= len(trainset)
+    loss_A_list.append(loss_A)
+    loss_B_list.append(loss_B)
+    loss_G_list.append(loss_model_G)
     end_time = time.time()
     result = 'TimeStamp:{},Epoch:{}, Training Time: {},lossD_A :{},lossD_B:{},loss_G:{}\n'.format(
         time.ctime(), epoch, end_time-start_time, loss_A, loss_B, loss_model_G)
@@ -221,3 +218,6 @@ for epoch in range(1, num_epochs+1):
     torch.save(model, 'C_GAN.model')
 
 print('-' * 20)
+plot_graph(num_epochs, loss_A_list, 'lossD_A')
+plot_graph(num_epochs, loss_B_list, 'lossD_B')
+plot_graph(num_epochs, loss_G_list, 'loss_G')

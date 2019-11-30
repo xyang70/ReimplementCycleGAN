@@ -39,6 +39,7 @@ testset = ImageDataset(opt.dataroot, transforms_=transform_test, mode='test')
 test_loader = DataLoader(testset, batch_size=1, shuffle=True)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = torch.load(opt.model).to(device)
+print(model)
 directory = 'test_output'
 if not os.path.exists(directory):
     os.makedirs(directory)
